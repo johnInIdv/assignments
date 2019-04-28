@@ -50,14 +50,14 @@ console.log(migration_origin_by_country);
 		      iso_a3: metadata.iso_a3
 				}
 	    } else {
-	      console.log(`${d.key} code ${code} not found`);
+	      // console.log(`${d.key} code ${code} not found`);
 	    }
 	  })
 
 	console.log(combinedData);
 
 		//REPRESENT
-		drawCartogram(d3.select('.cartogram').node(), combinedData);
+		drawCartogram(d3.select('.cartogram').node(), migration_origin_by_country);
 
 	})
 
@@ -102,24 +102,14 @@ function drawCartogram(rootDom, data){
 		nodesEnter.append('text')
 			.attr('text-anchor', 'middle');
 
-		//UPDATE + ENTER
-		//Both of their 'transform' attributes are the set the same way
-		//so we merge them
 		nodes.merge(nodesEnter)
-			// .filter(d => d.lngLat)
-			.attr('transform', `translate(${d.lngLat[0]}, ${d.lngLat[1]})`);
-				// console.log(xy);
-			// })
+		.filter(d => d.lngLat)
+		.attr('transform', d => {
+			let xy = scaleSize(projection(d.lngLat));
+			return `translate(${xy[0]}, ${xy[1]})`;
+			console.log(xy);
+		})
 
-		// nodes.merge(nodesEnter)
-		// .filter(d => d.lngLat)
-		// .attr('transform', d => {
-		// 	let xy = scaleSize(projection(d.lngLat);
-		// 	return `translate(${xy[0]}, ${xy[1]})`;
-		// 	console.log(xy);
-		// })
-			// .transition()
-			// .attr('transform', d => `translate(${d.x}, ${d.y})`);
 		nodes.merge(nodesEnter)
 		.select('circle')
 		.attr('r', d => scaleSize(d.value))
@@ -130,71 +120,20 @@ function drawCartogram(rootDom, data){
 		.style('stroke', 'red')
 		.style('stroke-width', '1px')
 		.style('stroke-opacity', .2)
-			// .select('text')
-			// .text(d => d.name);
+
 		nodes.merge(nodesEnter)
 		.select('text')
 		.filter(d => d.value > 1000000)
 		.text(d => d.name_display)
 		.style('font-family', 'sans-serif')
 		.style('font-size', '10px');
-			// .select('circle')
-			// .transition()
-			// .attr('r', d => d.value);
 
 		//EXIT SELECTION
-		//nodes.exit().remove();
 		nodes.exit()
 			.select('circle')
 			.style('fill','red');
 	}
 
-
-
-
-
-//
-// 	const svg = d3.select(rootDom)
-//     .append('svg')
-//     .attr('width', w)
-//     .attr('height', h)
-//     .append('g');
-//
-// 	let circles = svg.selectAll('.circle')
-// 		  .data(data, d => d.key);
-// 	let circlesEnter = circles.enter()
-// 			.append('g')
-// 		  .attr('class', 'circle');
-// 		  circlesEnter.append('circle');
-// 		  circlesEnter.append('text').attr('text-anchor', 'middle');
-//
-// 			circles.merge(circlesEnter)
-// 		    .filter(d => d.lngLat)
-// 		    .attr('transform', d => {
-// 		      let xy = projection(d.lngLat);
-// 		      return `translate(${xy[0]}, ${xy[1]})`;
-// 		      console.log(xy);
-// 		    })
-//
-// 		  circles.merge(circlesEnter)
-// 		    .select('circle')
-// 		    .attr('r', d => scaleSize(d.value))
-// 		    .style('fill-opacity', .03)
-// 				.style('fill', function (d) {
-// 				return "rgb(0, 0, " + (Math.round(d * 200)) + ")";
-// 			})
-// 		    .style('stroke', 'red')
-// 		    .style('stroke-width', '1px')
-// 		    .style('stroke-opacity', .2)
-//
-// 		  circles.merge(circlesEnter)
-// 		    .select('text')
-// 		    .filter(d => d.value > 1000000)
-// 		    .text(d => d.name_display)
-// 		    .style('font-family', 'sans-serif')
-// 		    .style('font-size', '10px')
-//
-// }
 
 //Utility functions for parsing metadata, migration data, and country code
 function parseMetadata(d){
